@@ -40,19 +40,9 @@ class Game():
     The game board is created from a given path to a JSON file.
     """
 
-    def __init__(self, board_path, player_names):
-        # Import JSON from the given path
-        try:
-            if type(board_path) is not str:
-                raise Exception("Board path should be a string giving the path to the JSON file")
-            with open(board_path, 'r') as f:
-                self.board = json.load(f)
-            if len(self.board) < 1:
-                raise Exception("Given JSON file is empty")
-        except json.decoder.JSONDecodeError:
-            print("Cannot decode given JSON file")
-        except FileNotFoundError:
-            print("Board path should give the path to a JSON file")
+    def __init__(self, board_path, player_names, rolls_path):
+        # Import board JSON from the given path
+        self.board = self.import_JSON(board_path)
 
         # Initialise a Player instance for each player name
         if len(player_names) != len(set(player_names)):
@@ -65,7 +55,30 @@ class Game():
         for player in self.players:
             self.player_locations[player.name] = 0
 
+        # Import rolls JSON from the given path
+        self.rolls = self.import_JSON(rolls_path)
+
         print("Beginning a game of Woven Monopoly for {}.".format(player_names))
+
+
+    def import_JSON(self, path):
+        """
+        Imports a JSON file, checking if the path is valid and the file isn't empty.
+        Returns the JSON as a variable.
+        """
+        try:
+            if type(path) is not str:
+                raise Exception("Path should be a string giving the path to the JSON file")
+            with open(path, 'r') as f:
+                var = json.load(f)
+            if len(var) < 1:
+                raise Exception("Given JSON file is empty")
+        except json.decoder.JSONDecodeError:
+            print("Cannot decode given JSON file")
+        except FileNotFoundError:
+            print("Path should give the path to a JSON file")
+
+        return var
 
 
     def play(self):
@@ -205,6 +218,6 @@ class Game():
 
 names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
 
-game = Game('board.json', names)
+game = Game('board.json', names, 'rolls_1.json')
 
 game.play()
