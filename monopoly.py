@@ -71,11 +71,16 @@ class Game():
         """
         Simulates the game play.
         """
-        for player in self.players:
-            print("It's {}'s turn. They are on {}.".format(
-                player.name,
-                self.board[self.player_locations[player.name]]["name"]
-                ))
+        bankrupt_player = False
+
+        while not bankrupt_player:
+            for player in self.players:
+                print("It's {}'s turn. They are on {}.".format(
+                    player.name,
+                    self.board[self.player_locations[player.name]]["name"]
+                    ))
+                if player.money <= 0:
+                    bankrupt_player = True
 
 
 # Game setup
