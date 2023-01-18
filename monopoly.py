@@ -16,4 +16,20 @@ def dice_roll(sides = 6):
 
     return random.randint(1, sides)
 
-print(dice_roll())
+
+# Classes
+
+class Player():
+    """
+    Class for the game players
+    All players start with $16 and no properties
+    """
+    def __init__(self, name, money = 16, properties = []):
+        self.name = name
+        self.money = money
+        self.properties = properties
+
+# Game setup
+
+names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
+players = [Player(name) for name in names]
