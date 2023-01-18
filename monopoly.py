@@ -53,6 +53,8 @@ class Game():
             print("Cannot decode given JSON file")
         except FileNotFoundError:
             print("Board path should give the path to a JSON file")
+        # Sets the owner of the 'Go' tile to none
+        self.board[0]["owner"] = "None"
 
         # Initialise a Player instance for each player name
         if len(player_names) != len(set(player_names)):
@@ -92,10 +94,30 @@ class Game():
         move = dice_roll(6)
 
         # Moves the player to the new location
-        self.player_locations[player.name] = (self.player_locations[player.name] + move) % len(self.board)
+        current_location = (self.player_locations[player.name] + move) % len(self.board)
+        self.player_locations[player.name] = current_location
+
         print("{} has landed on {}.".format(
             player.name,
             self.board[self.player_locations[player.name]]["name"]
+        ))
+
+        # If property is unowned, buy it
+        if 'owner' not in self.board[current_location].keys():
+            if player.money >= self.board[current_location]["price"]:
+                self.board[current_location]["owner"] = player
+                player.money -= self.board[current_location]["price"]
+                player.properties.append(self.board[current_location])
+                print("{} buys {} for ${}".format(
+                    player.name,
+                    self.board[current_location]["name"],
+                    self.board[current_location]["price"]
+                ))
+        print("{} now has ${} and {} propert{}.".format(
+            player.name,
+            player.money,
+            len(player.properties),
+            "y" if len(player.properties) == 1 else "ies"
         ))
 
 
