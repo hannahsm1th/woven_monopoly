@@ -67,6 +67,7 @@ class Game():
 
         print("Beginning a game of Woven Monopoly for {}.".format(player_names))
 
+
     def play(self):
         """
         Simulates the game play.
@@ -82,8 +83,11 @@ class Game():
                 self.turn(player)
                 if player.money <= 0:
                     bankrupt_player = True
+                    print("{} has gone bankrupt!".format(player.name))
+                    break
 
             # print status of each player at the end of each round of play
+            print("=" * 20)
             for player in self.players:
                 print("{} now has ${} and {} propert{}.".format(
                 player.name,
@@ -92,6 +96,14 @@ class Game():
                 "y" if len(player.properties) == 1 else "ies"
             ))
             print()
+
+        winners = self.check_winner()
+
+        print("The winner{} {}: {}!".format(
+            "" if len(winners[0]) == 1 else "s",
+            "is" if len(winners[0]) == 1 else "are",
+            winners[1]
+        ))
 
     def check_set(self, colour):
         """
@@ -110,6 +122,29 @@ class Game():
                         set_owners.append(space["owner"])
 
         return len(set(set_owners)) == 1
+
+
+    def check_winner(self):
+        """
+        Determines the player with the current highest amount of money.
+        Returns the winning player(s) and their name(s) as a string.
+        """
+        current_winner = [Player("Dummy", money=0)]
+
+        for player in self.players:
+            if player.money > current_winner[0].money:
+                current_winner = [player]
+            elif player.money == current_winner[0].money:
+                current_winner.append(player)
+
+        winner_string = current_winner[0].name
+        if len(current_winner) > 1:
+            for i in range(1, len(current_winner)):
+                winner_string += ", "
+                winner_string += current_winner[i].name
+
+        return current_winner, winner_string
+
 
     def turn(self, player):
         """
@@ -148,9 +183,14 @@ class Game():
                 rent = self.board[current_location]["price"]
                 if self.check_set(self.board[current_location]["colour"]):
                     rent = rent * 2
-                player.money -= rent
-                current_owner.money += rent
-                print("{} Pays ${} rent to {}".format(player.name, rent, current_owner.name))
+                if player.money >= rent:
+                    player.money -= rent
+                    current_owner.money += rent
+                    print("{} pays ${} rent to {}".format(player.name, rent, current_owner.name))
+                elif player.money < rent:
+                    current_owner.money += player.money
+                    player.money = 0
+                    print("{} can't pay the required ${} rent to {}!".format(player.name, rent, current_owner.name))
         else:
             raise Exception("Board tile type not valid.")
 
