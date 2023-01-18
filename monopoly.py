@@ -79,14 +79,31 @@ class Game():
                     player.name,
                     self.board[self.player_locations[player.name]]["name"]
                     ))
+                self.turn(player)
                 if player.money <= 0:
                     bankrupt_player = True
+
+    def turn(self, player):
+        """
+        Simulates a turn for the given player.
+        """
+
+        # Rolls the dice
+        move = dice_roll(6)
+
+        # Moves the player to the new location
+        self.player_locations[player.name] = (self.player_locations[player.name] + move) % len(self.board)
+        print("{} has landed on {}.".format(
+            player.name,
+            self.board[self.player_locations[player.name]]["name"]
+        ))
 
 
 # Game setup
 
-names = ['Peter', 'Billy', 'Charlotte', 'Sweedal', 'Peter']
+names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
 
 game = Game('board.json', names)
 
-game.play()
+# game.play()
+game.turn(game.players[0])
