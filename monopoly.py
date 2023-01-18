@@ -111,8 +111,8 @@ class Game():
             print()
 
         winners = self.check_winner()
-
-        print("The winner{} {}: {}!".format(
+        print("=" * 25)
+        print("The winner{} {}: {}!\n".format(
             "" if len(winners[0]) == 1 else "s",
             "is" if len(winners[0]) == 1 else "are",
             winners[1]
@@ -123,6 +123,7 @@ class Game():
                 player.name,
                 self.board[self.player_locations[player.name]]["name"]
             ))
+        print("=" * 25)
 
     def check_set(self, colour):
         """
@@ -170,8 +171,13 @@ class Game():
         Simulates a turn for the given player.
         """
 
-        # Rolls the dice
-        move = dice_roll(6)
+        # Rolls the dice - using the next available roll in the JSON or a random if none are available
+        if len(self.rolls) >= 1:
+            move = self.rolls[0]
+            self.rolls.pop(0)
+        else:
+            print("Using a random roll")
+            move = dice_roll(6)
 
         # Moves the player to the new location
         current_location = (self.player_locations[player.name] + move) % len(self.board)
@@ -218,6 +224,10 @@ class Game():
 
 names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
 
-game = Game('board.json', names, 'rolls_1.json')
+game1 = Game('board.json', names, 'rolls_1.json')
 
-game.play()
+game1.play()
+
+game2 = Game('board.json', names, 'rolls_2.json')
+
+game2.play()
