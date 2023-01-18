@@ -41,6 +41,7 @@ class Game():
     """
 
     def __init__(self, board_path, player_names):
+        # Import JSON from the given path
         try:
             if type(board_path) is not str:
                 raise Exception("Board path should be a string giving the path to the JSON file")
@@ -52,13 +53,35 @@ class Game():
             print("Cannot decode given JSON file")
         except FileNotFoundError:
             print("Board path should give the path to a JSON file")
+
+        # Initialise a Player instance for each player name
+        if len(player_names) != len(set(player_names)):
+            raise Exception("List cannot contain duplicate names.")
         self.players = [Player(name) for name in player_names]
 
+        # Create a dictionary to store where the players are
+        self.player_locations = {}
+        # Begins by placing each player at GO.
+        for player in self.players:
+            self.player_locations[player.name] = 0
+
         print("Beginning a game of Woven Monopoly for {}.".format(player_names))
+
+    def play(self):
+        """
+        Simulates the game play.
+        """
+        for player in self.players:
+            print("It's {}'s turn. They are on {}.".format(
+                player.name,
+                self.board[self.player_locations[player.name]]["name"]
+                ))
 
 
 # Game setup
 
-names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
+names = ['Peter', 'Billy', 'Charlotte', 'Sweedal', 'Peter']
 
 game = Game('board.json', names)
+
+game.play()
