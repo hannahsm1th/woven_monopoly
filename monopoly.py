@@ -105,6 +105,12 @@ class Game():
             winners[1]
         ))
 
+        for player in self.players:
+            print("{} ends on {}".format(
+                player.name,
+                self.board[self.player_locations[player.name]]["name"]
+            ))
+
     def check_set(self, colour):
         """
         Iterates over the properties and determines if the given color of properties all have the same owner.
@@ -193,14 +199,6 @@ class Game():
                     print("{} can't pay the required ${} rent to {}!".format(player.name, rent, current_owner.name))
         else:
             raise Exception("Board tile type not valid.")
-
-        # Prints player info at the end of the turn - for testing
-        # print("{} now has ${} and {} propert{}.".format(
-        #     player.name,
-        #     player.money,
-        #     len(player.properties),
-        #     "y" if len(player.properties) == 1 else "ies"
-        # ))
 
 
 # Game setup
