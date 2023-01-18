@@ -40,7 +40,7 @@ class Game():
     The game board is created from a given path to a JSON file.
     """
 
-    def __init__(self, board_path, player_names, rolls_path):
+    def __init__(self, board_path, player_names, rolls_path, verbose=False):
         # Import board JSON from the given path
         self.board = self.import_JSON(board_path)
 
@@ -58,7 +58,9 @@ class Game():
         # Import rolls JSON from the given path
         self.rolls = self.import_JSON(rolls_path)
 
-        print("Beginning a game of Woven Monopoly for {}.".format(player_names))
+        self.verbose = verbose
+
+        self.verboseprint("Beginning a game of Woven Monopoly for {}.".format(player_names))
 
 
     def import_JSON(self, path):
@@ -81,34 +83,42 @@ class Game():
         return var
 
 
+    def verboseprint(self, input):
+        """
+        An option to print more detail about the gameplay in each turn
+        """
+        print(input) if self.verbose else lambda *a, **k: None
+
+
     def play(self):
         """
         Simulates the game play.
         """
+
         bankrupt_player = False
 
         while not bankrupt_player:
             for player in self.players:
-                print("{}'s turn. They are on {}.".format(
+                self.verboseprint("{}'s turn. They are on {}.".format(
                     player.name,
                     self.board[self.player_locations[player.name]]["name"]
                     ))
                 self.turn(player)
                 if player.money <= 0:
                     bankrupt_player = True
-                    print("{} has gone bankrupt!".format(player.name))
+                    self.verboseprint("{} has gone bankrupt!".format(player.name))
                     break
 
             # print status of each player at the end of each round of play
-            print("=" * 20)
+            self.verboseprint("=" * 20)
             for player in self.players:
-                print("{} now has ${} and {} propert{}.".format(
+                self.verboseprint("{} now has ${} and {} propert{}.".format(
                 player.name,
                 player.money,
                 len(player.properties),
                 "y" if len(player.properties) == 1 else "ies"
             ))
-            print()
+            self.verboseprint("")
 
         winners = self.check_winner()
         print("=" * 25)
@@ -141,7 +151,14 @@ class Game():
                     else:
                         set_owners.append(space["owner"])
 
-        return len(set(set_owners)) == 1
+        single_owner = len(set(set_owners)) == 1
+        if single_owner:
+            self.verboseprint("The {} set is owned by {}.".format(
+                colour,
+                set_owners[0]
+            ))
+
+        return single_owner
 
 
     def check_winner(self):
@@ -176,21 +193,21 @@ class Game():
             move = self.rolls[0]
             self.rolls.pop(0)
         else:
-            print("Using a random roll")
+            self.verboseprint("Using a random roll")
             move = dice_roll(6)
 
         # Moves the player to the new location
         current_location = (self.player_locations[player.name] + move) % len(self.board)
         self.player_locations[player.name] = current_location
 
-        print("{} has landed on {}.".format(
+        self.verboseprint("{} has landed on {}.".format(
             player.name,
             self.board[self.player_locations[player.name]]["name"]
         ))
 
         if self.board[current_location]["type"] == 'go':
             player.money += 1
-            print("Collecting GO money...")
+            self.verboseprint("Collecting GO money...")
         elif self.board[current_location]["type"] == 'property':
             # If property is unowned, buy it
             if 'owner' not in self.board[current_location].keys():
@@ -198,7 +215,7 @@ class Game():
                     self.board[current_location]["owner"] = player
                     player.money -= self.board[current_location]["price"]
                     player.properties.append(self.board[current_location])
-                    print("{} buys {} for ${}".format(
+                    self.verboseprint("{} buys {} for ${}".format(
                         player.name,
                         self.board[current_location]["name"],
                         self.board[current_location]["price"]
@@ -211,11 +228,11 @@ class Game():
                 if player.money >= rent:
                     player.money -= rent
                     current_owner.money += rent
-                    print("{} pays ${} rent to {}".format(player.name, rent, current_owner.name))
+                    self.verboseprint("{} pays ${} rent to {}".format(player.name, rent, current_owner.name))
                 elif player.money < rent:
                     current_owner.money += player.money
                     player.money = 0
-                    print("{} can't pay the required ${} rent to {}!".format(player.name, rent, current_owner.name))
+                    self.verboseprint("{} can't pay the required ${} rent to {}!".format(player.name, rent, current_owner.name))
         else:
             raise Exception("Board tile type not valid.")
 
