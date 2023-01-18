@@ -75,13 +75,41 @@ class Game():
 
         while not bankrupt_player:
             for player in self.players:
-                print("It's {}'s turn. They are on {}.".format(
+                print("{}'s turn. They are on {}.".format(
                     player.name,
                     self.board[self.player_locations[player.name]]["name"]
                     ))
                 self.turn(player)
                 if player.money <= 0:
                     bankrupt_player = True
+
+            # print status of each player at the end of each round of play
+            for player in self.players:
+                print("{} now has ${} and {} propert{}.".format(
+                player.name,
+                player.money,
+                len(player.properties),
+                "y" if len(player.properties) == 1 else "ies"
+            ))
+            print()
+
+    def check_set(self, colour):
+        """
+        Iterates over the properties and determines if the given color of properties all have the same owner.
+        Returns a bool.
+        """
+
+        set_owners = []
+
+        for space in self.board:
+            if space["type"] == "property":
+                if space["colour"] == colour:
+                    if 'owner' not in space.keys():
+                        return False
+                    else:
+                        set_owners.append(space["owner"])
+
+        return len(set(set_owners)) == 1
 
     def turn(self, player):
         """
@@ -115,15 +143,24 @@ class Game():
                         self.board[current_location]["name"],
                         self.board[current_location]["price"]
                     ))
+            elif 'owner' in self.board[current_location].keys() and self.board[current_location]["owner"] != player:
+                current_owner = self.board[current_location]["owner"]
+                rent = self.board[current_location]["price"]
+                if self.check_set(self.board[current_location]["colour"]):
+                    rent = rent * 2
+                player.money -= rent
+                current_owner.money += rent
+                print("{} Pays ${} rent to {}".format(player.name, rent, current_owner.name))
         else:
             raise Exception("Board tile type not valid.")
 
-        print("{} now has ${} and {} propert{}.".format(
-            player.name,
-            player.money,
-            len(player.properties),
-            "y" if len(player.properties) == 1 else "ies"
-        ))
+        # Prints player info at the end of the turn - for testing
+        # print("{} now has ${} and {} propert{}.".format(
+        #     player.name,
+        #     player.money,
+        #     len(player.properties),
+        #     "y" if len(player.properties) == 1 else "ies"
+        # ))
 
 
 # Game setup
@@ -132,5 +169,4 @@ names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
 
 game = Game('board.json', names)
 
-# game.play()
-game.turn(game.players[0])
+game.play()
