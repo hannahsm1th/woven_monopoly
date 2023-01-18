@@ -37,10 +37,10 @@ class Game():
 
     """
     Class for the game logic, simulating the players movements around the board.
-    The game board is created from a given path to a JSON file
+    The game board is created from a given path to a JSON file.
     """
 
-    def __init__(self, board_path, players):
+    def __init__(self, board_path, player_names):
         try:
             if type(board_path) is not str:
                 raise Exception("Board path should be a string giving the path to the JSON file")
@@ -52,12 +52,13 @@ class Game():
             print("Cannot decode given JSON file")
         except FileNotFoundError:
             print("Board path should give the path to a JSON file")
-        self.players = players
+        self.players = [Player(name) for name in player_names]
+
+        print("Beginning a game of Woven Monopoly for {}.".format(player_names))
 
 
 # Game setup
 
 names = ['Peter', 'Billy', 'Charlotte', 'Sweedal']
-players = [Player(name) for name in names]
 
-game = Game('board.json', players)
+game = Game('board.json', names)
