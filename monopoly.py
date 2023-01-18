@@ -27,10 +27,10 @@ class Player():
     All players start with $16 and no properties
     """
 
-    def __init__(self, name, money = 16, properties = []):
+    def __init__(self, name, money = 16):
         self.name = name
         self.money = money
-        self.properties = properties
+        self.properties = []
 
 
 class Game():
